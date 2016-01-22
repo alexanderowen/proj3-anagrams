@@ -13,3 +13,13 @@
 .message { 
     color: red;
 }
+
+.partial_match {
+	font-weight: bold;
+	color: #FF0000;
+}
+
+.used_letter {
+    color:#CCCCCC;
+}
+

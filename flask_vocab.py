@@ -98,8 +98,6 @@ def check():
   """
   app.logger.debug("Entering check")
 
-  ## The data we need, from form and from cookie
-  ## text = request.form["attempt"]
   text = request.args.get("text", type=str)
   jumble = flask.session["jumble"]
   matches = flask.session.get("matches", []) # Default to empty list

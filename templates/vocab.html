@@ -109,25 +109,19 @@ $("#entry").submit( function(event) {
 function boldWords(txt) {
    //Bolds the letters as they go along
    var all_words = document.getElementsByClassName("word");
-   
-   if (txt.length == 0) {
-      for (var i = 0; i < all_words.length; i++) {
-         all_words[i].id = "";
-      }
-      return;
-   }   
-   
+
    for (var i = 0; i < all_words.length; i++) {
+      curr_word = all_words[i];
       partial_match = true;
       for (var j = 0; j < txt.length; j ++) {
-         if (all_words[i].innerHTML.indexOf(txt[j]) == -1 ) {
+         if (curr_word.innerHTML.indexOf(txt[j]) == -1 ) {
             partial_match = false;
          }         
       }      
-      if (partial_match) {
-         all_words[i].id = "partial_match";
+      if (partial_match && txt.length > 0) {
+         curr_word.className += " partial_match";
       } else {
-         all_words[i].id = "";
+         curr_word.className = curr_word.className.replace(/ partial_match/g,"");
       }
    } 
 }
@@ -144,19 +138,37 @@ function grayLetters(txt) {
        }
    }
    
-   all_letters = document.getElementsByClassName("letter");
+   var all_letters = document.getElementsByClassName("letter");
    for (var i = 0; i < all_letters.length; i++) {
       curr_letter = all_letters[i];
+      is_used = false;
       for (var key in counts) {         
          if (curr_letter.innerHTML == key && counts[key] > 0) {
-            curr_letter.id = "used_letter";
+            is_used = true;
             counts[key]--;
             break;
-         } else {
-            curr_letter.id = "";
-         }
+         }        
+      }
+      if (is_used && txt.length > 0) {
+         curr_letter.className += " used_letter";
+      } else {
+         curr_letter.className = curr_letter.className.replace(/ used_letter/g,"");
       }
    }
+}
+
+function resetAll() {
+   var all_letters = document.getElementsByClassName("letter");
+   var all_words = document.getElementsByClassName("word");
+   
+   for (var i = 0; i < all_letters.length; i++) {
+      var letter = all_letters[i];
+      letter.className = letter.className.replace(/ used_letter/g,"");
+   }
+   for (var i = 0; i < all_words.length; i++) {
+      var word = all_words[i];
+      word.className = word.className.replace(/ partial_match/g,"");
+   }   
 }
 
 $("#attempt").keyup(function() {
@@ -172,46 +184,7 @@ $("#attempt").keyup(function() {
 
    boldWords(txt);
    grayLetters(txt);
-   
 
-   
-   /* SECOND ATTEMPT
-   all_letters = document.getElementsByClassName("letter");
-   for (var key in counts) {
-      for (var i = 0; i < all_letters.length; i++) {
-         var used_letter = false;
-         if (all_letters[i].innerHTML == key && counts[key] > 0) {
-        	all_letters[i].id = "used_letter";
-            //counts[key]--
-            used_letter = true;
-            counts[key]--
-            break;
-         } else {
-            all_letters[i].id = "";
-         }
-      }      
-   }*/
-   
-   /* FIRST ATTEMPT
-   
-   all_letters = document.getElementsByClassName("letter");
-   for (var i = 0; i < all_letters.length; i++) {
-      var used_letter = false;
-      for (var j = 0; j < txt.length; j++) {
-         if (all_letters[i].innerHTML == txt[j]) {
-            used_letter = true;
-         }   
-      }
-      if (used_letter) {
-         all_letters[i].id = "used_letter";
-         
-      } else {
-         all_letters[i].id = "";
-      }      
-   }
-   
-   */
-   
    $.getJSON( "/_check", { text: txt }, 
               function(data) {
                 is_word = data.result.is_word;
@@ -220,6 +193,7 @@ $("#attempt").keyup(function() {
                 if (is_word) {
                    $("#results").append(txt + " ");
                    $("#attempt").val("");
+                   resetAll();
                 }                 
                 if (is_finished) {
                 	window.location.href = "success";
