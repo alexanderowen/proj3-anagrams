@@ -54,7 +54,7 @@
   -->
 <div class="row">
   {% for word in g.vocab %}
-    <div class="col-xs-2 text-center"> {{ word }} </div>
+    <div class="col-xs-2 text-center word">{{ word }}</div>
     {% if loop.index is divisibleby 3 %}
     </div> <!-- row -->
     <div class="row">
@@ -70,7 +70,10 @@
   </div>
   </div><div class="row">
   <div class="col-xs-6 text-center lead">
-    <strong>{{ session.jumble }}</strong>
+    
+    {% for letter in session.jumble %}
+      <span><strong class="letter" id="">{{letter}}</strong></span>
+    {% endfor %}
   </div>
   </div><div class="row">
   <div class="col-xs-6 text-center">
@@ -83,21 +86,17 @@
   <form id="entry" method="POST" action="/_check">
     <label for="attempt">Word:</label>
     <input id="attempt" name="attempt" type="text" width="15"
-      autocomplete="off"  autofocus />
-    <!-- <input type="submit" name="try" /> -->
+      autocomplete="off"  autofocus />    
   </form>
 </div></div>
 
-<br />
+<br>
 <h2>Found word list</h2>
 <p id="results"></p>
 
 <p class="message"></p>
 
-
-
-
- </div> <!-- container -->
+</div> <!-- container -->
  
  <script>
 
@@ -106,25 +105,124 @@ $("#entry").submit( function(event) {
    event.preventDefault();
   });
 
-// On each keystroke, ask the server whether the current 
-// word is long enough. 
-// (We use 'keyup' because the form value
-// is updated before that event is generated.  keypress doesn't work.)
-//
+
+function boldWords(txt) {
+   //Bolds the letters as they go along
+   var all_words = document.getElementsByClassName("word");
+   
+   if (txt.length == 0) {
+      for (var i = 0; i < all_words.length; i++) {
+         all_words[i].id = "";
+      }
+      return;
+   }   
+   
+   for (var i = 0; i < all_words.length; i++) {
+      partial_match = true;
+      for (var j = 0; j < txt.length; j ++) {
+         if (all_words[i].innerHTML.indexOf(txt[j]) == -1 ) {
+            partial_match = false;
+         }         
+      }      
+      if (partial_match) {
+         all_words[i].id = "partial_match";
+      } else {
+         all_words[i].id = "";
+      }
+   } 
+}
+
+function grayLetters(txt) {
+   //Grays the letters as they go along
+   var counts = {}
+   for (var i = 0; i < txt.length; i++) {
+       var l = txt[i];
+       if (l in counts) {
+          counts[l]++
+       } else {
+          counts[l] = 1;
+       }
+   }
+   
+   all_letters = document.getElementsByClassName("letter");
+   for (var i = 0; i < all_letters.length; i++) {
+      curr_letter = all_letters[i];
+      for (var key in counts) {         
+         if (curr_letter.innerHTML == key && counts[key] > 0) {
+            curr_letter.id = "used_letter";
+            counts[key]--;
+            break;
+         } else {
+            curr_letter.id = "";
+         }
+      }
+   }
+}
+
 $("#attempt").keyup(function() {
    var txt = $("#attempt").val();
+   var new_letter =  txt[txt.length-1];   
+      
+   var letters = "{{session.jumble}}";   
+   // if the new letter isn't in the jumble, remove it from the form
+   if (letters.indexOf(new_letter) == -1) {  
+       txt = txt.replace(new_letter, "");
+       $("#attempt").val(txt);
+   }   
+
+   boldWords(txt);
+   grayLetters(txt);
+   
+
+   
+   /* SECOND ATTEMPT
+   all_letters = document.getElementsByClassName("letter");
+   for (var key in counts) {
+      for (var i = 0; i < all_letters.length; i++) {
+         var used_letter = false;
+         if (all_letters[i].innerHTML == key && counts[key] > 0) {
+        	all_letters[i].id = "used_letter";
+            //counts[key]--
+            used_letter = true;
+            counts[key]--
+            break;
+         } else {
+            all_letters[i].id = "";
+         }
+      }      
+   }*/
+   
+   /* FIRST ATTEMPT
+   
+   all_letters = document.getElementsByClassName("letter");
+   for (var i = 0; i < all_letters.length; i++) {
+      var used_letter = false;
+      for (var j = 0; j < txt.length; j++) {
+         if (all_letters[i].innerHTML == txt[j]) {
+            used_letter = true;
+         }   
+      }
+      if (used_letter) {
+         all_letters[i].id = "used_letter";
+         
+      } else {
+         all_letters[i].id = "";
+      }      
+   }
+   
+   */
+   
    $.getJSON( "/_check", { text: txt }, 
               function(data) {
-                rsval = data.result.is_word;
+                is_word = data.result.is_word;
+                is_finished = data.result.is_finished;                
                 
-                console.log("rsval: " + rsval)
-                if (rsval) {
+                if (is_word) {
                    $("#results").append(txt + " ");
                    $("#attempt").val("");
-                } 
-                finished = data.result.is_finished;
-                if (finished) {
-                	window.location.href = "success"
+                }                 
+                if (is_finished) {
+                	window.location.href = "success";
                 }
                }
            );
