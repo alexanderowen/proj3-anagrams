@@ -1,40 +1,18 @@
 # proj3-anagrams
-Vocabularly anagrams game for primary school English language learners (ELL)
+AJAX enhanced vocabulary anagrams game for primary school English language learners (ELL)  
 
+Name: Alexander Owen  
+URL: http://ix.cs.uoregon.edu/~aowen/htbin/cis399/proj3-anagrams/  
+http://ix.cs.uoregon.edu:5565    
 
-## Overview
+Main changes from the source are found in:  
+flask_vocab.py  
+templates/vocab.html    
 
-A simple anagram game designed for English-language learning students in 
-elementary and middle school.  
-Students are presented with a list of vocabulary words (taken from a text file) 
-and an anagram.  The anagram is a jumble of some number of vocabulary words, randomly chosen.  Students attempt to type vocabularly words that can be created from the  
-jumble.  When a matching word is typed, it is added to a list of solved words. 
+Extra credit implemented:  
+- If the user types in a character that isn't the in letter jumble, the letter is erased  
+- At each keystroke, the words in the wordlist that contain each character typed so far are colored red  
+- At each keystroke, letters in the letter jumble that have been used are grayed out    
 
-The vocabulary word list is fixed for one invocation of the server, so multiple
-students connected to the same server will see the same vocabulary list but may 
-have different anagrams.
-
-## Authors 
-
-Initial version by M Young; to be revised by CIS 399se students. 
-
-## Status
-
-This is the 'skeleton' version for a CIS 322 project.  It uses conventional 
-interaction through a form, interacting only when the user submits the form. 
-Assignment is to replace the interaction with AJAX interaction on each 
-keystroke. 
-
-## Minijax? 
-
-flask_minijax.py and templates/minijax.html are a tiny example of using JQuery 
-with flask for an Ajax application.  (To be deleted in revised version of the project. 
-
-
-## To run automated tests 
-* `nosetests`
-
-There are currently nose tests for vocab.py, letterbag.py, and jumble.py. 
-
-
+All of the extra credit is implemented in the JS portion of vocab.html. 
 
